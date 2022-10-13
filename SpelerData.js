@@ -28,12 +28,12 @@ class SpelerStatus
 
     CopyRangeToRange(target)
     {
-        target.grondstoffen.CopyRangeToRange(target.grondstoffen);
-        target.basis.CopyRangeToRange(target.basis);
-        target.bonus.CopyRangeToRange(target.bonus);
-        target.populatie.CopyRangeToRange(target.populatie);
-        target.goudStelen.CopyRangeToRange(target.goudStelen);
-        target.belasting.CopyRangeToRange(target.belasting);
+        this.grondstoffen.CopyRangeToRange(target.grondstoffen);
+        this.basis.CopyRangeToRange(target.basis);
+        this.bonus.CopyRangeToRange(target.bonus);
+        this.populatie.CopyRangeToRange(target.populatie);
+        this.goudStelen.CopyRangeToRange(target.goudStelen);
+        this.belasting.CopyRangeToRange(target.belasting);
     }
 }
 
@@ -55,18 +55,19 @@ class Grondstoffen
     {
         return new Grondstoffen
         (
-            new ValueLevel(range.offset(offsets.goud.value[0], offsets.goud.value[1], 1,1), range.offset(offsets.goud.level[0], offsets.goud.level[1], 1,1)), 
-            new ValueLevel(range.offset(offsets.hout.value[0], offsets.hout.value[1], 1,1), range.offset(offsets.hout.level[0], offsets.hout.level[1], 1,1)), 
-            new ValueLevel(range.offset(offsets.ijzer.value[0], offsets.ijzer.value[1], 1,1), range.offset(offsets.ijzer.level[0], offsets.ijzer.level[1], 1,1)), 
+            // Een kolom naar rechts voor het level. De waarde wordt berekend in de sheet
+            new range.offset(offsets.goud.value[0], offsets.goud.value[1] + 1, 1,1),
+            new range.offset(offsets.hout.value[0], offsets.hout.value[1] + 1, 1,1),
+            new range.offset(offsets.ijzer.value[0], offsets.ijzer.value[1] + 1, 1,1) 
         )
     }
 
     CopyRangeToRange(target)
     {
-        for (var thing of [this.goud, this.hout, this.ijzer])
-        {
-            thing.setValues(target.getValues());
-        };
+        var values = this.goud.getValues();
+        target.goud.setValues(values);
+        target.hout.setValues(this.hout.getValues());
+        target.ijzer.setValues(this.ijzer.getValues());
     }
 }
 
@@ -98,10 +99,10 @@ class Basis
 
     CopyRangeToRange(target)
     {
-        for (var thing of [this.soldaten, this.schade, this.verdediging, this.discipline])
-        {
-            thing.setValues(target.getValues());
-        };
+        target.soldaten.setValues(this.soldaten.getValues());
+        target.schade.setValues(this.schade.getValues());
+        target.verdediging.setValues(this.verdediging.getValues());
+        target.discipline.setValues(this.discipline.getValues());
     }
 }
 
@@ -124,46 +125,51 @@ class Bonus
     {
         return new Bonus
         (
-            new ValueLevel(range.offset(offsets.cavalerie.value[0], offsets.cavalerie.value[1], 1,1), range.offset(offsets.cavalerie.level[0], offsets.cavalerie.level[1], 1,1)), 
-            new ValueLevel(range.offset(offsets.boogschutters.value[0], offsets.boogschutters.value[1], 1,1), range.offset(offsets.boogschutters.level[0], offsets.boogschutters.level[1], 1,1)), 
-            new ValueLevel(range.offset(offsets.katapulten.value[0], offsets.katapulten.value[1], 1,1), range.offset(offsets.katapulten.level[0], offsets.katapulten.level[1], 1,1)), 
-            new ValueLevel(range.offset(offsets.prestige[0], offsets.prestige[1], 1,1))
+            new range.offset(offsets.cavalerie.value[0], offsets.cavalerie.value[1], 1,2), 
+            new range.offset(offsets.boogschutters.value[0], offsets.boogschutters.value[1], 1,2), 
+            new range.offset(offsets.katapulten.value[0], offsets.katapulten.value[1], 1,1), 
+            new range.offset(offsets.prestige[0], offsets.prestige[1], 1,1)
         )
     }
 
     CopyRangeToRange(target)
     {
-        for (var thing of [this.cavalerie, this.boogschutters, this.katapulten, this.prestige])
-        {
-            thing.setValues(target.getValues());
-        };
+        target.cavalerie.setValues(this.cavalerie.getValues());
+        target.boogschutters.setValues(this.boogschutters.getValues());
+        target.katapulten.setValues(this.katapulten.getValues());
+        target.prestige.setValues(this.prestige.getValues());
     }
 }
 
 class Populatie
 {
-    constructor()
+    constructor(totaal, max, beschikbaar)
     {
+        this.totaal = totaal;
+        this.max = max;
+        this.beschikbaar = beschikbaar;
     }
 
     GetContents()
     {
-        return [];
+        return [this.totaal, this.max, this.beschikbaar];
     }
 
     SubRangesFromOffsets(range, offsets)
     {
         return new Populatie
         (
+            new range.offset(offsets.totaal[0], offsets.totaal[1], 1,1), 
+            new range.offset(offsets.max[0], offsets.max[1], 1,1), 
+            new range.offset(offsets.beschikbaar[0], offsets.beschikbaar[1], 1,1)
         )
     }
 
     CopyRangeToRange(target)
     {
-        for (var thing of [])
-        {
-            thing.setValues(target.getValues());
-        };
+        target.totaal.setValues(this.totaal.getValues());
+        target.max.setValues(this.max.getValues());
+        target.beschikbaar.setValues(this.beschikbaar.getValues());
     }
 }
 
@@ -188,17 +194,16 @@ class GoudStelen
         (
             range.offset(offsets.kluis[0], offsets.kluis[1], 1,1), 
             range.offset(offsets.inbrekers[0], offsets.inbrekers[1], 1,1), 
-            range.offset(offsets.onderhoud[0], offsets.onderhoud[1]), 1,1,
+            range.offset(offsets.onderhoud[0], offsets.onderhoud[1], 1,1), 
             range.offset(offsets.goudInkomsten[0], [1], 1,1)
         )
     }
 
     CopyRangeToRange(target)
     {
-        for (var thing of [this.kluis, this.inbrekers, this.onderhoud, this.goudInkomsten])
-        {
-            thing.setValues(target.getValues());
-        };
+        target.kluis.setValues(this.kluis.getValues());
+        target.inbrekers.setValues(this.inbrekers.getValues());
+        target.onderhoud.setValues(this.onderhoud.getValues());
     }
 }
 
@@ -226,10 +231,8 @@ class Belasting
 
     CopyRangeToRange(target)
     {
-        for (var thing of [this.percentage, this.goudInkomsten])
-        {
-            thing.setValues(target.getValues());
-        };
+        target.percentage.setValues(this.percentage.getValues());
+        target.goudInkomsten.setValues(this.goudInkomsten.getValues());
     }
 }
 

@@ -46,6 +46,6 @@ function _BeurtOptellen(sheet, rangeA1)
 function _VooruitzichtNaarHuidigeBeurt(sheet)
 {
   var data = SPELER_DATA_FACTORY.CreateSpelerData(sheet);
-  data.huidigeBeurt.CopyRangeToRange(data.vooruitzicht);
+  data.vooruitzicht.CopyRangeToRange(data.huidigeBeurt);
 }
 

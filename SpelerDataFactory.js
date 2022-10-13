@@ -4,7 +4,7 @@ const BEURT_INDEXES = new SpelerStatus
     new Grondstoffen(new ValueLevel([3,2], [3,3]), new ValueLevel([4,2], [4,3]), new ValueLevel([5,2], [5,3]), ),
     new Basis([8,2], [9,2], [10,2], [11,2],),
     new Bonus(new ValueLevel([14,2], [14,3]), new ValueLevel([15,2], [15,3]), new ValueLevel([16,2], [16,3]), [17,2]),
-    new Populatie(),
+    new Populatie([20,0], [20,2], [20,3]),
     new GoudStelen([23,2], [24,2], [25,2], [26,2]),
     new Belasting([29,2], [30,2])
 );
