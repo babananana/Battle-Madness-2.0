@@ -28,8 +28,8 @@ function BeurtUitvoeren(beurtSheetData)
   var spelerSheet = spelerSpreadsheet.getSheets()[0];
   var spelerStatSheet = spelerSpreadsheet.getSheets()[2];
   
-  //_BeurtOptellen(spelerSheet, "M1");
-  //_VooruitzichtNaarHuidigeBeurt(spelerSheet);
+  _BeurtOptellen(spelerSheet, "M1");
+  _VooruitzichtNaarHuidigeBeurt(spelerSheet);
   _NieuweActiesBepalen(spelerStatSheet, spelerSheet);
   _InvoerLeegmaken(spelerSheet);
 }

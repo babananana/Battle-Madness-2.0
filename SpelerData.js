@@ -31,7 +31,7 @@ class SpelerStatus
         this.grondstoffen.CopyRangeToRange(target.grondstoffen);
         this.basis.CopyRangeToRange(target.basis);
         this.bonus.CopyRangeToRange(target.bonus);
-        this.populatie.CopyRangeToRange(target.populatie);
+        //this.populatie.CopyRangeToRange(target.populatie); //Deprecated; vervangen door formule
         this.goudStelen.CopyRangeToRange(target.goudStelen);
         this.belasting.CopyRangeToRange(target.belasting);
     }
