@@ -31,7 +31,7 @@ function BeurtUitvoeren(beurtSheetData)
   //_BeurtOptellen(spelerSheet, "M1");
   //_VooruitzichtNaarHuidigeBeurt(spelerSheet);
   _NieuweActiesBepalen(spelerStatSheet, spelerSheet);
-  //InvoerLeegmaken
+  _InvoerLeegmaken(spelerSheet);
 }
 
 function _BeurtOptellen(spelerSheet, rangeA1)
@@ -52,4 +52,10 @@ function _NieuweActiesBepalen(spelerStatSheet, spelerSheet)
 {
   var updater = new ActiesRandomizer(spelerStatSheet);
   updater.Update(spelerSheet);
+}
+
+function _InvoerLeegmaken(spelerSheet)
+{
+  var spelerInvoer = new SpelerInvoer();
+  spelerInvoer.ClearInvoer(spelerSheet);
 }
