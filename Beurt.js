@@ -24,28 +24,32 @@ function BeurtUitvoeren(beurtSheetData)
     'https://docs.google.com/spreadsheets/d/1UCF37vsiZeKIgkKikO2TmuTmDoifP9NphF37RcTuAtk/edit#gid=1784571136');*/
 
   Logger.log("BeurtUitvoeren: " + JSON.stringify(beurtSheetData));
-  var toernooiSpreadsheet = SpreadsheetApp.openByUrl(beurtSheetData[1]);
-
-  var sheet = toernooiSpreadsheet.getSheets()[0];
-  /*_UpdateLevels(sheet);
-  _UpdateLeger(sheet);
-  _UpdateActies(sheet);*/
-  _BeurtOptellen(sheet, "M1");
-  _VooruitzichtNaarHuidigeBeurt(sheet);
-  /*_BonusActieMultiplier(sheet, toernooiSpreadsheet.getSheetByName("Statistieken"));*/
+  var spelerSpreadsheet = SpreadsheetApp.openByUrl(beurtSheetData[1]);
+  var spelerSheet = spelerSpreadsheet.getSheets()[0];
+  var spelerStatSheet = spelerSpreadsheet.getSheets()[2];
+  
+  //_BeurtOptellen(spelerSheet, "M1");
+  //_VooruitzichtNaarHuidigeBeurt(spelerSheet);
+  _NieuweActiesBepalen(spelerStatSheet, spelerSheet);
+  //InvoerLeegmaken
 }
 
-function _BeurtOptellen(sheet, rangeA1)
+function _BeurtOptellen(spelerSheet, rangeA1)
 {
   Logger.log("BeurtOptellen");
-  beurtCell = sheet.getRange(rangeA1).getCell(1,1);
+  beurtCell = spelerSheet.getRange(rangeA1).getCell(1,1);
   var oldValue = parseInt(beurtCell.getValue());
   beurtCell.setValue(oldValue+1);
 }
 
-function _VooruitzichtNaarHuidigeBeurt(sheet)
+function _VooruitzichtNaarHuidigeBeurt(spelerSheet)
 {
-  var data = SPELER_DATA_FACTORY.CreateSpelerData(sheet);
+  var data = SPELER_DATA_FACTORY.CreateSpelerData(spelerSheet);
   data.vooruitzicht.CopyRangeToRange(data.huidigeBeurt);
 }
 
+function _NieuweActiesBepalen(spelerStatSheet, spelerSheet)
+{
+  var updater = new ActiesRandomizer(spelerStatSheet);
+  updater.Update(spelerSheet);
+}

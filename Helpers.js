@@ -14,3 +14,14 @@ class ValueLevel
         };
     }
 }
+
+Array.prototype.random = function () 
+{
+    return this[Math.floor((Math.random()*this.length))];
+}
+
+Array.prototype.randomIndex = function () 
+{
+    return Math.floor((Math.random()*this.length));
+}
+  //[2,3,5].random()
