@@ -1,4 +1,4 @@
-const BATTLE_REPORT_SPELER_B_RANGE = "F3:F13"
+const BATTLE_REPORT_SPELER_B_RANGE = "F3:F22"
 const STATISTIEKEN_SHEET_SPELER_DATA_TO_BATTLE_LAYOUT = {
     "Soldaten" : {statIndex: 3, BattleIndex: 1}, 
     "Schade" : {statIndex: 4, BattleIndex: 2}, 
@@ -8,7 +8,10 @@ const STATISTIEKEN_SHEET_SPELER_DATA_TO_BATTLE_LAYOUT = {
     "Cal. Bonus" : {statIndex: 8, BattleIndex: 7}, 
     "Boogschutters" : {statIndex: 9, BattleIndex: 8}, 
     "Katapulten" : {statIndex: 10, BattleIndex: 9}, 
-    "Prestige" : {statIndex: 12, BattleIndex: 10}
+    "Prestige" : {statIndex: 12, BattleIndex: 10},
+    "Kluis" : {statIndex: 16, BattleIndex: 17}, 
+    "Inbrekers" : {statIndex: 17, BattleIndex: 18}, 
+    "Onderhoud" : {statIndex: 18, BattleIndex: 19}
 }; 
 
 class BattleInvuller
