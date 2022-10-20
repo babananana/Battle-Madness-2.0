@@ -12,10 +12,12 @@ function BeurtUitvoeren(beurtSheetData)
   var spelerSheet = spelerSpreadsheet.getSheets()[0];
   var spelerStatSheet = spelerSpreadsheet.getSheets()[2];
   
-  _BeurtOptellen(spelerSheet, "M1");
+  var beurtUitgevoerd = _BeurtOptellen(spelerSheet, "M1");
   _VooruitzichtNaarHuidigeBeurt(spelerSheet);
   _NieuweActiesBepalen(spelerStatSheet, spelerSheet);
   _InvoerLeegmaken(spelerSheet);
+
+  return beurtUitgevoerd;
 }
 
 function _BeurtOptellen(spelerSheet, rangeA1)
@@ -24,6 +26,7 @@ function _BeurtOptellen(spelerSheet, rangeA1)
   beurtCell = spelerSheet.getRange(rangeA1).getCell(1,1);
   var oldValue = parseInt(beurtCell.getValue());
   beurtCell.setValue(oldValue+1);
+  return oldValue;
 }
 
 function _VooruitzichtNaarHuidigeBeurt(spelerSheet)
