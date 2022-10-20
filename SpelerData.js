@@ -31,7 +31,7 @@ class SpelerStatus
         this.grondstoffen.CopyRangeToRange(target.grondstoffen);
         this.basis.CopyRangeToRange(target.basis);
         this.bonus.CopyRangeToRange(target.bonus);
-        //this.populatie.CopyRangeToRange(target.populatie); //Deprecated; vervangen door formule
+        this.populatie.CopyRangeToRange(target.populatie); 
         this.goudStelen.CopyRangeToRange(target.goudStelen);
         this.belasting.CopyRangeToRange(target.belasting);
     }
@@ -167,9 +167,9 @@ class Populatie
 
     CopyRangeToRange(target)
     {
-        target.totaal.setValues(this.totaal.getValues());
+        // Alleen max, de rest gaat via formules
         target.max.setValues(this.max.getValues());
-        target.beschikbaar.setValues(this.beschikbaar.getValues());
+        
     }
 }
 
