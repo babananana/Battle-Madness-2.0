@@ -16,7 +16,7 @@ class HomepageUpdater
         this._ProgrammaKopierenNaarUitslag();
         this._winnaarsInvullen();
         this._ScorebordUpdaten();
-        // Shuffelen
+        this._ScorebordShufflen();
         // Programma genereren
     }
 
@@ -146,5 +146,20 @@ class HomepageUpdater
         {
             Logger.log(naam + " staat al bovenaan/onderaan!");
         }
+    }
+
+    _ScorebordShufflen()
+    {
+        CheckUi();
+        var hoofdpagina = this.homepageSpreadSheet.getSheetByName("Hoofdpagina");
+        var scorebordRangeList = hoofdpagina.getRangeList(SCOREBORD_KOLOMMEN).getRanges();
+        var scorebord = _ScorebordFactory(hoofdpagina);
+        var shuffledScorebord = _Shuffle(scorebord);
+        for (var col = 0; col < scorebord.length; col++)
+        {
+            var colRange = scorebordRangeList[col];
+            colRange.setValues(shuffledScorebord[col].values);
+        }
+        scorebord = _ScorebordFactory(hoofdpagina);
     }
 }

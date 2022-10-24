@@ -51,3 +51,14 @@ function _IsCellInRange(cell, range)
     cell.getColumn() >= startColumn && 
     cell.getColumn() <= endColumn);
 }
+
+function _Shuffle(unshuffled)
+{
+  return (unshuffled
+  // We put each element in the array in an object, and give it a random sort key
+  .map(value => ({ value, sort: Math.random() }))
+  // We sort using the random key
+  .sort((a, b) => a.sort - b.sort)
+  // We unmap to get the original objects
+  .map(({ value }) => value));
+}
