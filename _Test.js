@@ -47,7 +47,6 @@ function TestHomepageUpdaten()
   const homepageSpreadSheet = SpreadsheetApp.openByUrl("https://docs.google.com/spreadsheets/d/12Ri71NxzYuK5PVu_l743wovqDnLoGX7YULuJuyYhLes/edit");
   // test invoerpagina
   
-  
   var homeUpdater = new HomepageUpdater(homepageSpreadSheet, statistiekenSpreadSheet);
   homeUpdater.UpdateHomepage();
 }
