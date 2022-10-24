@@ -1,7 +1,7 @@
 const SPELER_SHEET_STATS_RANGE = "C3:C32"
 const SPELER_SHEET_BEURT_NR_RANGE = "C2"
 const STATISTIEKEN_SHEET_SPELER_DATA_RANGE = "C3:O32"
-
+const STATISTIEKEN_SPELER_WINST_ROW = 26
 
 
 class StatistiekenUpdater
@@ -30,6 +30,29 @@ class StatistiekenUpdater
         var spelerBeurtStats = spelerStatSheet.getRange(SPELER_SHEET_STATS_RANGE);
 
         statistiekenSheetDataRangeBeurt.setValues(spelerBeurtStats.getValues());
+    }
+
+    GetWinnaar(spelerNameA, spelerNameB, beurNr)
+    {
+        var spelerAStats = this.GetStatistieken(spelerNameA, beurNr);
+        var spelerAWinst = spelerAStats[STATISTIEKEN_SPELER_WINST_ROW][0];
+        if (spelerAWinst == "W")
+        {
+            return spelerNameA;
+        }
+        else
+        {
+            var spelerBStats = this.GetStatistieken(spelerNameB, beurNr);
+            var spelerBWinst = spelerBStats[STATISTIEKEN_SPELER_WINST_ROW][0];
+            if (spelerBWinst == "W")
+            {
+                return spelerNameB;
+            }
+            else
+            {
+                return "-";
+            }
+        }
     }
 
     GetStatistieken(spelerName, beurtNr)

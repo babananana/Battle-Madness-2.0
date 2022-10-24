@@ -39,3 +39,15 @@ function TestBattleSpelerBUpdaten()
   var battleInvuller = new BattleInvuller(SpreadsheetApp.openByUrl(beurtSheetData[0][1]));
   battleInvuller.UpdateBattleSpelerB(stats, "Bart");
 }
+
+
+function TestHomepageUpdaten()
+{
+  const statistiekenSpreadSheet = SpreadsheetApp.openByUrl("https://docs.google.com/spreadsheets/d/1PeO6XTn-d13cDyrfw5_x1fYowsOyv-uiGepEHXE-zjI/edit");
+  const homepageSpreadSheet = SpreadsheetApp.openByUrl("https://docs.google.com/spreadsheets/d/12Ri71NxzYuK5PVu_l743wovqDnLoGX7YULuJuyYhLes/edit");
+  // test invoerpagina
+  
+  
+  var homeUpdater = new HomepageUpdater(homepageSpreadSheet, statistiekenSpreadSheet);
+  homeUpdater.UpdateHomepage();
+}
