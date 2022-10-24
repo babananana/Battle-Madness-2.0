@@ -32,10 +32,11 @@ function CheckUi()
   try
   {
     var ui = SpreadsheetApp.getUi();
+    globalThis.uiActief = true;
   }
   catch(err)
   {
-    uiActief = false;
+    globalThis.uiActief = false;
   }
 }
 
@@ -61,4 +62,13 @@ function _Shuffle(unshuffled)
   .sort((a, b) => a.sort - b.sort)
   // We unmap to get the original objects
   .map(({ value }) => value));
+}
+
+function _BeurtOptellen(sheet, rangeA1)
+{
+  Logger.log("BeurtOptellen");
+  beurtCell = sheet.getRange(rangeA1).getCell(1,1);
+  var oldValue = parseInt(beurtCell.getValue());
+  beurtCell.setValue(oldValue+1);
+  return oldValue;
 }

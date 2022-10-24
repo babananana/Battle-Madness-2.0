@@ -2,6 +2,8 @@ const HOMEPAGE_PROGRAMM_RANGES = ["B13:B16", "D13:D16"];
 const HOMEPAGE_UITSLAG_SPELER_RANGES = ["I20:I23", "K20:K23"];
 const HOMEPAGE_UITSLAG_RANGE = "I20:M23";
 const HOMEPAGE_BEURTNR_RANGE = "C2";
+const HOMEPAGE_READY_RANGE = "B4:C10";
+
 
 class HomepageUpdater
 {
@@ -18,6 +20,7 @@ class HomepageUpdater
         this._ScorebordUpdaten();
         this._ScorebordShufflen();
         this._VolgendeBattlesBepalenProgrammaUpdaten();
+        var beurtUitgevoerd = _BeurtOptellen(this.homepageSpreadSheet.getSheetByName("Hoofdpagina"), "C2");
     }
 
     _ProgrammaKopierenNaarUitslag()
@@ -111,7 +114,7 @@ class HomepageUpdater
         if (error != "")
         {
             Logger.log(error);
-            if (uiActief)
+            if (globalThis.uiActief)
             {
             var ui = SpreadsheetApp.getUi(); // Same variations.
             var result = ui.alert(
@@ -203,5 +206,34 @@ class HomepageUpdater
                 cell.setValue(naam);
             }
         }
+    }
+
+     ResetSpelersReady()
+    {
+        var hoofdpagina = this.homepageSpreadSheet.getSheetByName("Hoofdpagina");
+        var homepageReadyRange = hoofdpagina.getRange(HOMEPAGE_READY_RANGE);
+        for (var readyRow = 0; readyRow < homepageReadyRange.getNumRows(); readyRow++)
+        {
+            var cell = homepageReadyRange.offset(readyRow, 0, 1).getCell(1,2);
+            cell.setValue("");
+        }
+    }
+
+    _CheckSpelersReady()
+    {
+        var hoofdpagina = this.homepageSpreadSheet.getSheetByName("Hoofdpagina");
+        var homepageReadyRange = hoofdpagina.getRange(HOMEPAGE_READY_RANGE);
+
+        var warning = "";
+        for (var readyRow of homepageReadyRange.getValues())
+        {
+            var naam = readyRow[0];
+            var readyX = readyRow[1];
+            if (readyX.toLowerCase() != "x")
+            {
+                warning += "Let op! " + naam + " is nog niet ready!\n";
+            }
+        }
+        return warning;
     }
 }

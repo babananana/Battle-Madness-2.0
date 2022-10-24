@@ -1,6 +1,77 @@
 
+function BeurtenUitvoeren()
+{
+  CheckUi();
+  var statistiekenSpreadSheet = SpreadsheetApp.openByUrl('https://docs.google.com/spreadsheets/d/1PeO6XTn-d13cDyrfw5_x1fYowsOyv-uiGepEHXE-zjI/edit');
+  var homepageSpreadSheet = SpreadsheetApp.openByUrl('https://docs.google.com/spreadsheets/d/12Ri71NxzYuK5PVu_l743wovqDnLoGX7YULuJuyYhLes/edit');
+  
+  var allOK = false;
+  var statistiekenBeurtBewerkenSheet = statistiekenSpreadSheet.getSheetByName("Beurt Bewerken");
+  var beurtSheetLijst = statistiekenBeurtBewerkenSheet.getRange(STATISTIEKEN_BEURT_BEWERKEN_RANGE).getValues();
+  Logger.log("beurtSheetLijst: " + JSON.stringify(beurtSheetLijst));
+  var homeUpdater = new HomepageUpdater(homepageSpreadSheet, statistiekenSpreadSheet);
+  allOK = _CheckSpelersInvoerInteractive(homeUpdater, beurtSheetLijst);
 
+  if (allOK) 
+  {
+    homeUpdater.ResetSpelersReady();
+    //homeUpdater.UpdateHomepage();
+    //beurtSheetLijst = [beurtSheetLijst[0]];
+    for (var beurtSheetData of beurtSheetLijst)
+    {
+      BeurtUitvoeren(beurtSheetData);
+    }
+    var hoofdpagina = homepageSpreadSheet.getSheetByName("Hoofdpagina");
+    _BeurtOptellen(hoofdpagina, "C2");
+  }
+  else
+  {
+    Logger.log("Er is iets niet OK, beurten zijn niet uitgevoerd!");
+  }
+}
 
+function _CheckSpelersInvoerInteractive(homepageUpdater, beurtSheetLijst)
+{
+    CheckUi();
+    var warning = ""
+    
+    Logger.log("beurtSheetLijst: " + JSON.stringify(beurtSheetLijst))
+    warning += homepageUpdater._CheckSpelersReady();
+    warning += _CheckGoudHoutIJzerOver(beurtSheetLijst)
+    if (globalThis.uiActief)
+    {
+      var ui = SpreadsheetApp.getUi(); 
+      var result = ui.alert(
+      'Beurten verwerken',
+      warning + '\nWeet je zeker dat je alle beurten wilt verwerken?',
+      ui.ButtonSet.YES_NO)
+      if (result == ui.Button.YES) 
+      {
+          warning = "";
+      }
+    }
+    return (warning == "");
+}
+
+function _CheckGoudHoutIJzerOver(beurtSheetLijst)
+{
+  var warning = "";
+  for (var beurtSheetData of beurtSheetLijst)
+  {
+    var naam = beurtSheetData[0];
+    var toernooiSpreadsheet = SpreadsheetApp.openByUrl(beurtSheetData[1])
+    var sheet = toernooiSpreadsheet.getSheets()[0];
+    var goudOver = sheet.getRange("T28").getCell(1,1).getValue();
+    var houtOver = sheet.getRange("U28").getCell(1,1).getValue();
+    var ijzerOver = sheet.getRange("V28").getCell(1,1).getValue();
+    
+    if (goudOver > 0 || houtOver > 0 || ijzerOver > 0) 
+    {
+        warning += "Let op! " + naam + " heeft nog " + goudOver + " Goud, " + houtOver + " Hout en " + ijzerOver + " IJzer over! \n";
+    }
+  }
+  return warning;
+}
 
 function BeurtUitvoeren(beurtSheetData) 
 {
@@ -18,15 +89,6 @@ function BeurtUitvoeren(beurtSheetData)
   var beurtUitgevoerd = _BeurtOptellen(spelerSheet, "M1");
 
   return beurtUitgevoerd;
-}
-
-function _BeurtOptellen(spelerSheet, rangeA1)
-{
-  Logger.log("BeurtOptellen");
-  beurtCell = spelerSheet.getRange(rangeA1).getCell(1,1);
-  var oldValue = parseInt(beurtCell.getValue());
-  beurtCell.setValue(oldValue+1);
-  return oldValue;
 }
 
 function _VooruitzichtNaarHuidigeBeurt(spelerSheet)
