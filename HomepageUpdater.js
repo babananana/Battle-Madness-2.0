@@ -17,7 +17,7 @@ class HomepageUpdater
         this._winnaarsInvullen();
         this._ScorebordUpdaten();
         this._ScorebordShufflen();
-        // Programma genereren
+        this._VolgendeBattlesBepalenProgrammaUpdaten();
     }
 
     _ProgrammaKopierenNaarUitslag()
@@ -161,5 +161,47 @@ class HomepageUpdater
             colRange.setValues(shuffledScorebord[col].values);
         }
         scorebord = _ScorebordFactory(hoofdpagina);
+    }
+
+    _VolgendeBattlesBepalenProgrammaUpdaten()
+    {
+        CheckUi();
+        var hoofdpagina = this.homepageSpreadSheet.getSheetByName("Hoofdpagina");
+        var scorebordRange = hoofdpagina.getRange("J4:Q16");
+        var programmaRange = hoofdpagina.getRange("B13:D16");
+
+        var spelersSorted = [];  
+
+        for (var rowCount = 0; rowCount < scorebordRange.getNumRows(); rowCount++)
+        {
+            var scorebordRegelRange = scorebordRange.offset(rowCount, 0, 1);
+            if ((rowCount % 2) == 0) // Alleen even rijen
+            {
+                var regelValues = scorebordRegelRange.getValues()[0];
+                for (var cellValue of regelValues)
+                {
+                    var result = SCOREBORD_SPELERS.findIndex((x) => x == cellValue);
+                    if (result != -1)
+                    {
+                        spelersSorted.push(cellValue);
+                    }
+                }
+            }
+        }
+
+        Logger.log("Spelerlijst op volgorde: " + spelersSorted);
+
+        for (var rowCount = 0; rowCount < programmaRange.getNumRows(); rowCount++)
+        {
+            var programmaRegelRange = programmaRange.offset(rowCount, 0, 1);
+            var cellIndexes = [[1,1], [1,3]];
+            for (var cellIndex of cellIndexes)
+            {
+                var cell = programmaRegelRange.getCell(cellIndex[0], cellIndex[1]);
+                var naam = spelersSorted.shift();
+                Logger.log(naam + " naar " + cell.getA1Notation());
+                cell.setValue(naam);
+            }
+        }
     }
 }
