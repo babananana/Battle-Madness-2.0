@@ -7,7 +7,11 @@ function BeurtenUitvoeren()
   
   var allOK = false;
   var statistiekenBeurtBewerkenSheet = statistiekenSpreadSheet.getSheetByName("Beurt Bewerken");
-  var beurtSheetLijst = statistiekenBeurtBewerkenSheet.getRange(STATISTIEKEN_BEURT_BEWERKEN_RANGE).getValues();
+  //var beurtSheetLijst = statistiekenBeurtBewerkenSheet.getRange(STATISTIEKEN_BEURT_BEWERKEN_RANGE).getValues();
+  var beurtSheetLijst = [
+    ["Bart", "https://docs.google.com/spreadsheets/d/1UCF37vsiZeKIgkKikO2TmuTmDoifP9NphF37RcTuAtk/edit"], 
+    ["Geus", "https://docs.google.com/spreadsheets/d/1LRwIppmrTrqhM_pouXgyuvZlhQj2yd9wyru-ALXFgrQ/edit"]
+  ];
   Logger.log("beurtSheetLijst: " + JSON.stringify(beurtSheetLijst));
   var homeUpdater = new HomepageUpdater(homepageSpreadSheet, statistiekenSpreadSheet);
   allOK = _CheckSpelersInvoerInteractive(homeUpdater, beurtSheetLijst);
@@ -22,7 +26,29 @@ function BeurtenUitvoeren()
       BeurtUitvoeren(beurtSheetData);
     }
     var hoofdpagina = homepageSpreadSheet.getSheetByName("Hoofdpagina");
-    _BeurtOptellen(hoofdpagina, "C2");
+    var huidigeBeurt = _BeurtOptellen(hoofdpagina, "C2");
+    
+    var statUpdater = new StatistiekenUpdater(statistiekenSpreadSheet);
+    statUpdater.UpdateSpelersStatistieken(beurtSheetLijst, huidigeBeurt);
+    
+    // Alle battle reports invullen op speler sheet
+    var winnaars = [];
+    for (var beurtSheetData of beurtSheetLijst)
+    {
+      var spelerNaam = beurtSheetData[0];
+      var tegenstanderNaam = homeUpdater.GetTegenstander(spelerNaam);
+      var statsTegenstander = statUpdater.GetStatistieken(tegenstanderNaam, huidigeBeurt);
+      var battleInvuller = new BattleInvuller(SpreadsheetApp.openByUrl(beurtSheetData[1]));
+      var tegenstanderGewonnen = battleInvuller.UpdateBattleSpelerB(statsTegenstander, tegenstanderNaam);
+      if (tegenstanderGewonnen)
+      {
+        winnaars.push(tegenstanderNaam);
+      }
+    }
+    statUpdater.SetWinnaars(winnaars, huidigeBeurt);
+
+    homeUpdater.UpdateHomepage(huidigeBeurt);
+    
   }
   else
   {

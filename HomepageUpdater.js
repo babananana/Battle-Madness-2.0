@@ -1,7 +1,6 @@
-const HOMEPAGE_PROGRAMM_RANGES = ["B13:B16", "D13:D16"];
+const HOMEPAGE_PROGRAMMA_RANGES = ["B13:B16", "D13:D16"];
 const HOMEPAGE_UITSLAG_SPELER_RANGES = ["I20:I23", "K20:K23"];
 const HOMEPAGE_UITSLAG_RANGE = "I20:M23";
-const HOMEPAGE_BEURTNR_RANGE = "C2";
 const HOMEPAGE_READY_RANGE = "B4:C10";
 
 
@@ -13,36 +12,61 @@ class HomepageUpdater
         this.statistiekenSpreadSheet = statistiekenSpreadSheet;
     }
 
-    UpdateHomepage()
+    UpdateHomepage(beurtNr)
     {
         this._ProgrammaKopierenNaarUitslag();
-        this._winnaarsInvullen();
+        this._winnaarsInvullen(beurtNr);
         this._ScorebordUpdaten();
         this._ScorebordShufflen();
         this._VolgendeBattlesBepalenProgrammaUpdaten();
-        var beurtUitgevoerd = _BeurtOptellen(this.homepageSpreadSheet.getSheetByName("Hoofdpagina"), "C2");
+    }
+
+    GetTegenstander(spelerNaam)
+    {
+        var hoofdpagina = this.homepageSpreadSheet.getSheetByName("Hoofdpagina");
+        var programma = [[]];
+
+        for (var i=0; i<HOMEPAGE_PROGRAMMA_RANGES.length; i++)
+        {
+            var values = hoofdpagina.getRange(HOMEPAGE_PROGRAMMA_RANGES[i]).getValues();
+            var programmaDeel = [];
+            for (var j=0; j<values.length; j++)
+            {
+                programmaDeel[j] = values[j][0];
+            }
+            programma[i] = programmaDeel;
+        }
+
+        var tegenstanderCol = 1;
+        var rowIndex = programma[0].findIndex((x) => x == spelerNaam);
+        if (rowIndex == -1)
+        {
+            tegenstanderCol = 0;
+            rowIndex = programma[1].findIndex((x) => x == spelerNaam);
+        }
+
+        return (rowIndex != -1) ? programma[tegenstanderCol][rowIndex] : "FOUT";
     }
 
     _ProgrammaKopierenNaarUitslag()
     {
         
 
-        for (var i=0; i<HOMEPAGE_PROGRAMM_RANGES.length; i++)
+        for (var i=0; i<HOMEPAGE_PROGRAMMA_RANGES.length; i++)
         {
             var hoofdpagina = this.homepageSpreadSheet.getSheetByName("Hoofdpagina");
-            var programmaRange = hoofdpagina.getRange(HOMEPAGE_PROGRAMM_RANGES[i]);
+            var programmaRange = hoofdpagina.getRange(HOMEPAGE_PROGRAMMA_RANGES[i]);
             var uitslagRange = hoofdpagina.getRange(HOMEPAGE_UITSLAG_SPELER_RANGES[i]);
             uitslagRange.setValues(programmaRange.getValues());
         }
     }
 
-    _winnaarsInvullen()
+    _winnaarsInvullen(beurtNr)
     {
         var hoofdpagina = this.homepageSpreadSheet.getSheetByName("Hoofdpagina");
         var statUpdater = new StatistiekenUpdater(this.statistiekenSpreadSheet);
         var uitslagSpelerRangeA = hoofdpagina.getRange(HOMEPAGE_UITSLAG_SPELER_RANGES[0]);
         var uitslagSpelerRangeB = hoofdpagina.getRange(HOMEPAGE_UITSLAG_SPELER_RANGES[1]);
-        var beurtNr = hoofdpagina.getRange(HOMEPAGE_BEURTNR_RANGE).getValue();
         var winnaarRange = hoofdpagina.getRange(HOMEPAGE_UITSLAG_RANGE);
 
         var uitslagSpelersA = uitslagSpelerRangeA.getValues();

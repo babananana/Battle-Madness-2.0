@@ -1,6 +1,7 @@
 const SPELER_SHEET_STATS_RANGE = "C3:C32"
-const SPELER_SHEET_BEURT_NR_RANGE = "C2"
+//const SPELER_SHEET_BEURT_NR_RANGE = "C2"
 const STATISTIEKEN_SHEET_SPELER_DATA_RANGE = "C3:O32"
+const STATISTIEKEN_SHEET_SPELER_WINNAAR_RANGE = "C29:O29"
 const STATISTIEKEN_SPELER_WINST_ROW = 26
 const STATISTIEKEN_BEURT_BEWERKEN_RANGE = "A2:B2"; // A2:B9
 
@@ -10,27 +11,42 @@ class StatistiekenUpdater
     constructor(statistiekenSpreadSheet)
     {
         this.statistiekenSpreadSheet = statistiekenSpreadSheet;
+        this.spelers = [];
     }
 
-    UpdateStatistieken(beurtSheetData)
+    UpdateSpelersStatistieken(beurtSheetData, beurtNr)
     {
         Logger.log("UpdateStatistieken: " + JSON.stringify(beurtSheetData));
         for (var spelerBeurtSheet of beurtSheetData)
         {
+            this.spelers.push(spelerBeurtSheet[0]);
             var spelerSpreadsheet = SpreadsheetApp.openByUrl(spelerBeurtSheet[1]);
             var spelerStatSheet = spelerSpreadsheet.getSheets()[2];
-            this._KopieerStatsVanSpelerNaarStatistiekenSheet(spelerStatSheet, spelerBeurtSheet[0]);
+            this._KopieerStatsVanSpelerNaarStatistiekenSheet(spelerStatSheet, spelerBeurtSheet[0], beurtNr);
         }
     }
 
-    _KopieerStatsVanSpelerNaarStatistiekenSheet(spelerStatSheet, spelerName)
+    _KopieerStatsVanSpelerNaarStatistiekenSheet(spelerStatSheet, spelerName, beurtNr)
     {
-        var beurtNr = spelerStatSheet.getRange(SPELER_SHEET_BEURT_NR_RANGE).getValue();
+        //var beurtNr = spelerStatSheet.getRange(SPELER_SHEET_BEURT_NR_RANGE).getValue();
         var statistiekenSheetDataRange = this.statistiekenSpreadSheet.getSheetByName(spelerName).getRange(STATISTIEKEN_SHEET_SPELER_DATA_RANGE);
         var statistiekenSheetDataRangeBeurt = statistiekenSheetDataRange.offset(0, beurtNr, statistiekenSheetDataRange.getNumRows(), 1);
         var spelerBeurtStats = spelerStatSheet.getRange(SPELER_SHEET_STATS_RANGE);
 
         statistiekenSheetDataRangeBeurt.setValues(spelerBeurtStats.getValues());
+    }
+
+    SetWinnaars(winnaars, beurtNr)
+    {
+        for (var speler of this.spelers)
+        {
+            if (winnaars.includes(speler))
+            {
+                var statistiekenSheetSpelerWinnaarRange = this.statistiekenSpreadSheet.getSheetByName(speler).getRange(STATISTIEKEN_SHEET_SPELER_WINNAAR_RANGE);
+                var statistiekenSheetSpelerWinnaarBeurtCell = statistiekenSheetSpelerWinnaarRange.offset(0, beurtNr, 1, 1);
+                statistiekenSheetSpelerWinnaarBeurtCell.setValue("W");
+            }
+        }
     }
 
     GetWinnaar(spelerNameA, spelerNameB, beurNr)

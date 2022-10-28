@@ -23,7 +23,7 @@ function TestStatistiekenUpdaten()
   var beurtSheetData = [["Bart", "https://docs.google.com/spreadsheets/d/1UCF37vsiZeKIgkKikO2TmuTmDoifP9NphF37RcTuAtk/edit"]];
   
   var statUpdater = new StatistiekenUpdater(statistiekenSpreadSheet);
-  statUpdater.UpdateStatistieken(beurtSheetData);
+  statUpdater.UpdateSpelersStatistieken(beurtSheetData);
 }
 
 
