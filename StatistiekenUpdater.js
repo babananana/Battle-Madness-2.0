@@ -1,10 +1,8 @@
 const SPELER_SHEET_STATS_RANGE = "C3:C32"
-//const SPELER_SHEET_BEURT_NR_RANGE = "C2"
 const STATISTIEKEN_SHEET_SPELER_DATA_RANGE = "C3:O32"
 const STATISTIEKEN_SHEET_SPELER_WINNAAR_RANGE = "C29:O29"
 const STATISTIEKEN_SPELER_WINST_ROW = 26
-const STATISTIEKEN_BEURT_BEWERKEN_RANGE = "A2:B2"; // A2:B9
-
+const STATISTIEKEN_BEURT_BEWERKEN_RANGE = "A2:B3"; // A2:B9
 
 class StatistiekenUpdater
 {
@@ -40,11 +38,15 @@ class StatistiekenUpdater
     {
         for (var speler of this.spelers)
         {
+            var statistiekenSheetSpelerWinnaarRange = this.statistiekenSpreadSheet.getSheetByName(speler).getRange(STATISTIEKEN_SHEET_SPELER_WINNAAR_RANGE);
+            var statistiekenSheetSpelerWinnaarBeurtCell = statistiekenSheetSpelerWinnaarRange.offset(0, beurtNr, 1, 1);
             if (winnaars.includes(speler))
             {
-                var statistiekenSheetSpelerWinnaarRange = this.statistiekenSpreadSheet.getSheetByName(speler).getRange(STATISTIEKEN_SHEET_SPELER_WINNAAR_RANGE);
-                var statistiekenSheetSpelerWinnaarBeurtCell = statistiekenSheetSpelerWinnaarRange.offset(0, beurtNr, 1, 1);
                 statistiekenSheetSpelerWinnaarBeurtCell.setValue("W");
+            }
+            else
+            {
+                statistiekenSheetSpelerWinnaarBeurtCell.clearContent();
             }
         }
     }

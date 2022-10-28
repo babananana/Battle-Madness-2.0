@@ -7,11 +7,7 @@ function BeurtenUitvoeren()
   
   var allOK = false;
   var statistiekenBeurtBewerkenSheet = statistiekenSpreadSheet.getSheetByName("Beurt Bewerken");
-  //var beurtSheetLijst = statistiekenBeurtBewerkenSheet.getRange(STATISTIEKEN_BEURT_BEWERKEN_RANGE).getValues();
-  var beurtSheetLijst = [
-    ["Bart", "https://docs.google.com/spreadsheets/d/1UCF37vsiZeKIgkKikO2TmuTmDoifP9NphF37RcTuAtk/edit"], 
-    ["Geus", "https://docs.google.com/spreadsheets/d/1LRwIppmrTrqhM_pouXgyuvZlhQj2yd9wyru-ALXFgrQ/edit"]
-  ];
+  var beurtSheetLijst = statistiekenBeurtBewerkenSheet.getRange(STATISTIEKEN_BEURT_BEWERKEN_RANGE).getValues();
   Logger.log("beurtSheetLijst: " + JSON.stringify(beurtSheetLijst));
   var homeUpdater = new HomepageUpdater(homepageSpreadSheet, statistiekenSpreadSheet);
   allOK = _CheckSpelersInvoerInteractive(homeUpdater, beurtSheetLijst);
