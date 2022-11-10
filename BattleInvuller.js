@@ -1,5 +1,7 @@
 const BATTLE_REPORT_SPELER_B_RANGE = "F3:F22"
 const BATTLE_REPORT_SPELER_B_WINNAAR_CELL = "F15"
+const BATTLE_REPORT_SCORE = "D14"
+const BATTLE_REPORT_SCORE_SPELER_B = "F14"
 const STATISTIEKEN_SHEET_SPELER_DATA_TO_BATTLE_LAYOUT = {
     "Soldaten" : {statIndex: 3, BattleIndex: 1}, 
     "Schade" : {statIndex: 4, BattleIndex: 2}, 
@@ -40,5 +42,17 @@ class BattleInvuller
 
         var spelerBWinnaar = this.spelerSheet.getRange(BATTLE_REPORT_SPELER_B_WINNAAR_CELL).getValue();
         return (spelerBWinnaar == "Winnaar");
+    }
+
+    GetScore()
+    {
+        var score = this.spelerSheet.getRange(BATTLE_REPORT_SCORE).getValue();
+        return score;
+    }
+
+    GetScoreSpelerB()
+    {
+        var score = this.spelerSheet.getRange(BATTLE_REPORT_SCORE_SPELER_B).getValue();
+        return score;
     }
 }

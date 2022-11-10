@@ -3,7 +3,6 @@ const HOMEPAGE_UITSLAG_SPELER_RANGES = ["I20:I23", "K20:K23"];
 const HOMEPAGE_UITSLAG_RANGE = "I20:M23";
 const HOMEPAGE_READY_RANGE = "B4:C10";
 
-
 class HomepageUpdater
 {
     constructor(homepageSpreadSheet, statistiekenSpreadSheet)
@@ -12,11 +11,15 @@ class HomepageUpdater
         this.statistiekenSpreadSheet = statistiekenSpreadSheet;
     }
 
-    UpdateHomepage(beurtNr)
+    BattleInvullen(beurtNr)
     {
         this._ProgrammaKopierenNaarUitslag();
         this._winnaarsInvullen(beurtNr);
         this._ScorebordUpdaten();
+    }
+
+    VolgendeBeurtKlaarzetten()
+    {
         this._ScorebordShufflen();
         this._VolgendeBattlesBepalenProgrammaUpdaten();
     }
@@ -50,8 +53,6 @@ class HomepageUpdater
 
     _ProgrammaKopierenNaarUitslag()
     {
-        
-
         for (var i=0; i<HOMEPAGE_PROGRAMMA_RANGES.length; i++)
         {
             var hoofdpagina = this.homepageSpreadSheet.getSheetByName("Hoofdpagina");

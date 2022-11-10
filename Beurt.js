@@ -2,7 +2,18 @@
 function BeurtenUitvoeren()
 {
   CheckUi();
-  var statistiekenSpreadSheet = SpreadsheetApp.openByUrl('https://docs.google.com/spreadsheets/d/1PeO6XTn-d13cDyrfw5_x1fYowsOyv-uiGepEHXE-zjI/edit');
+  var statistiekenSpreadSheetUrl = 'https://docs.google.com/spreadsheets/d/1PeO6XTn-d13cDyrfw5_x1fYowsOyv-uiGepEHXE-zjI/edit';
+  try
+  {
+    statistiekenSpreadSheetUrl = SpreadsheetApp.getActiveSpreadsheet().getUrl(); 
+  }
+  catch(err)
+  {
+  }
+
+  Logger.log("StatistiekenSheet URL: [" + statistiekenSpreadSheetUrl + "]");
+  
+  var statistiekenSpreadSheet = SpreadsheetApp.openByUrl(statistiekenSpreadSheetUrl);
   var homepageSpreadSheet = SpreadsheetApp.openByUrl('https://docs.google.com/spreadsheets/d/12Ri71NxzYuK5PVu_l743wovqDnLoGX7YULuJuyYhLes/edit');
   
   var allOK = false;
@@ -26,25 +37,49 @@ function BeurtenUitvoeren()
     
     var statUpdater = new StatistiekenUpdater(statistiekenSpreadSheet);
     statUpdater.UpdateSpelersStatistieken(beurtSheetLijst, huidigeBeurt);
-    
-    // Alle battle reports invullen op speler sheet
-    var winnaars = [];
+
+    if (_IsBattleBeurt(huidigeBeurt))
+    {
+      // Alle battle reports invullen op speler sheet
+      var winnaars = [];
+      for (var beurtSheetData of beurtSheetLijst)
+      {
+        var spelerNaam = beurtSheetData[0];
+        var tegenstanderNaam = homeUpdater.GetTegenstander(spelerNaam);
+        var statsTegenstander = statUpdater.GetStatistieken(tegenstanderNaam, huidigeBeurt);
+        var battleInvuller = new BattleInvuller(SpreadsheetApp.openByUrl(beurtSheetData[1]));
+        var tegenstanderGewonnen = battleInvuller.UpdateBattleSpelerB(statsTegenstander, tegenstanderNaam);
+        
+        if (tegenstanderGewonnen)
+        {
+          winnaars.push(tegenstanderNaam);
+        }
+
+        if (tegenstanderNaam == "CPU")
+        {
+          statUpdater.SetScore("CPU", huidigeBeurt, battleInvuller.GetScoreSpelerB());
+          statUpdater.SetCPUTegenstander(spelerNaam, huidigeBeurt);
+        }
+
+        statUpdater.SetScore(spelerNaam, huidigeBeurt, battleInvuller.GetScore());
+      }
+      statUpdater.SetWinnaars(winnaars, huidigeBeurt);
+      homeUpdater.BattleInvullen(huidigeBeurt);
+    }
+
+    if (_IsVolgendeBeurtBattleBeurt(huidigeBeurt))
+    {
+      homeUpdater.VolgendeBeurtKlaarzetten();
+    }
+        
+    var actiesRandomizer = new ActiesRandomizer(statistiekenBeurtBewerkenSheet);
+    actiesRandomizer.NieuweActiesBepalen();
+    actiesRandomizer.UpdateStatSheet(huidigeBeurt + 1);
+
     for (var beurtSheetData of beurtSheetLijst)
     {
-      var spelerNaam = beurtSheetData[0];
-      var tegenstanderNaam = homeUpdater.GetTegenstander(spelerNaam);
-      var statsTegenstander = statUpdater.GetStatistieken(tegenstanderNaam, huidigeBeurt);
-      var battleInvuller = new BattleInvuller(SpreadsheetApp.openByUrl(beurtSheetData[1]));
-      var tegenstanderGewonnen = battleInvuller.UpdateBattleSpelerB(statsTegenstander, tegenstanderNaam);
-      if (tegenstanderGewonnen)
-      {
-        winnaars.push(tegenstanderNaam);
-      }
+      SpelerSheetKlaarmakenVoorVolgendeBeurt(beurtSheetData, actiesRandomizer);
     }
-    statUpdater.SetWinnaars(winnaars, huidigeBeurt);
-
-    homeUpdater.UpdateHomepage(huidigeBeurt);
-    
   }
   else
   {
@@ -97,36 +132,28 @@ function _CheckGoudHoutIJzerOver(beurtSheetLijst)
 
 function BeurtUitvoeren(beurtSheetData) 
 {
-  /*var toernooiSpreadsheet = SpreadsheetApp.openByUrl(
-    'https://docs.google.com/spreadsheets/d/1UCF37vsiZeKIgkKikO2TmuTmDoifP9NphF37RcTuAtk/edit#gid=1784571136');*/
-
   Logger.log("BeurtUitvoeren: " + JSON.stringify(beurtSheetData));
   var spelerSpreadsheet = SpreadsheetApp.openByUrl(beurtSheetData[1]);
   var spelerSheet = spelerSpreadsheet.getSheets()[0];
-  var spelerStatSheet = spelerSpreadsheet.getSheets()[2];
   
   _VooruitzichtNaarHuidigeBeurt(spelerSheet);
-  _NieuweActiesBepalen(spelerStatSheet, spelerSheet);
-  _InvoerLeegmaken(spelerSheet);
   var beurtUitgevoerd = _BeurtOptellen(spelerSheet, "M1");
 
   return beurtUitgevoerd;
+}
+
+function SpelerSheetKlaarmakenVoorVolgendeBeurt(beurtSheetData, actiesRandomizer)
+{
+  var spelerSpreadsheet = SpreadsheetApp.openByUrl(beurtSheetData[1]);
+  var spelerSheet = spelerSpreadsheet.getSheets()[0];
+  actiesRandomizer.UpdateSpelerSheet(spelerSheet);
+
+  var spelerInvoer = new SpelerInvoer();
+  spelerInvoer.ClearInvoer(spelerSheet);
 }
 
 function _VooruitzichtNaarHuidigeBeurt(spelerSheet)
 {
   var data = SPELER_DATA_FACTORY.CreateSpelerData(spelerSheet);
   data.vooruitzicht.CopyRangeToRange(data.huidigeBeurt);
-}
-
-function _NieuweActiesBepalen(spelerStatSheet, spelerSheet)
-{
-  var updater = new ActiesRandomizer(spelerStatSheet);
-  updater.Update(spelerSheet);
-}
-
-function _InvoerLeegmaken(spelerSheet)
-{
-  var spelerInvoer = new SpelerInvoer();
-  spelerInvoer.ClearInvoer(spelerSheet);
 }

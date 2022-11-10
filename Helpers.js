@@ -72,3 +72,13 @@ function _BeurtOptellen(sheet, rangeA1)
   beurtCell.setValue(oldValue+1);
   return oldValue;
 }
+
+function _IsBattleBeurt(beurtNr)
+{
+  return (beurtNr > 3) ? true : false;
+}
+
+function _IsVolgendeBeurtBattleBeurt(beurtNr)
+{
+  return _IsBattleBeurt(beurtNr + 1);
+}
