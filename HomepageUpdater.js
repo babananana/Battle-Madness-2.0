@@ -139,7 +139,7 @@ class HomepageUpdater
         if (error != "")
         {
             Logger.log(error);
-            if (globalThis.uiActief)
+            if (uiActief)
             {
             var ui = SpreadsheetApp.getUi(); // Same variations.
             var result = ui.alert(

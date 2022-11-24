@@ -1,28 +1,43 @@
 
+var uiActief = false;
+
+var statistiekenSpreadSheetUrlTest = 'https://docs.google.com/spreadsheets/d/1PeO6XTn-d13cDyrfw5_x1fYowsOyv-uiGepEHXE-zjI/edit'; 
+var statistiekenSpreadSheetUrlOfficial = 'https://docs.google.com/spreadsheets/d/1ESkLwUngdBr2tfcROcgssE2r1FHJF8xmSu-xgQxNgt4/edit'; 
+
+var homepageUrlOfficial = 'https://docs.google.com/spreadsheets/d/12Ri71NxzYuK5PVu_l743wovqDnLoGX7YULuJuyYhLes/edit'; 
+var homepageUrlTest = 'https://docs.google.com/spreadsheets/d/1MAla-4TrH3ZyJVC9HpPGveMQcjQDwBf-_WiiVHN-n0k/edit';
+
 function BeurtenUitvoeren()
 {
   CheckUi();
-  var statistiekenSpreadSheetUrl = 'https://docs.google.com/spreadsheets/d/1PeO6XTn-d13cDyrfw5_x1fYowsOyv-uiGepEHXE-zjI/edit';
-  try
+  var homepageUrl = homepageUrlTest;
+  var statistiekenSpreadSheetUrl = statistiekenSpreadSheetUrlTest;
+  if (GetMode() == "official")
   {
-    statistiekenSpreadSheetUrl = SpreadsheetApp.getActiveSpreadsheet().getUrl(); 
-  }
-  catch(err)
-  {
+    homepageUrl = homepageUrlOfficial;
+    statistiekenSpreadSheetUrl = statistiekenSpreadSheetUrlOfficial;
   }
 
   Logger.log("StatistiekenSheet URL: [" + statistiekenSpreadSheetUrl + "]");
+  Logger.log("Homepage URL: [" + homepageUrl + "]");
   
   var statistiekenSpreadSheet = SpreadsheetApp.openByUrl(statistiekenSpreadSheetUrl);
-  var homepageSpreadSheet = SpreadsheetApp.openByUrl('https://docs.google.com/spreadsheets/d/12Ri71NxzYuK5PVu_l743wovqDnLoGX7YULuJuyYhLes/edit');
+  var homepageSpreadSheet = SpreadsheetApp.openByUrl(homepageUrl);
   
   var allOK = false;
   var statistiekenBeurtBewerkenSheet = statistiekenSpreadSheet.getSheetByName("Beurt Bewerken");
   var beurtSheetLijst = statistiekenBeurtBewerkenSheet.getRange(STATISTIEKEN_BEURT_BEWERKEN_RANGE).getValues();
+  if (GetMode() != "official")
+  {
+    var filtered = beurtSheetLijst.filter(function(value) {
+      return (value[0] != "" && value[1] != "");
+    });
+    beurtSheetLijst = filtered;
+  }
   Logger.log("beurtSheetLijst: " + JSON.stringify(beurtSheetLijst));
+  
   var homeUpdater = new HomepageUpdater(homepageSpreadSheet, statistiekenSpreadSheet);
   allOK = _CheckSpelersInvoerInteractive(homeUpdater, beurtSheetLijst);
-
   if (allOK) 
   {
     homeUpdater.ResetSpelersReady();
@@ -36,7 +51,7 @@ function BeurtenUitvoeren()
     var huidigeBeurt = _BeurtOptellen(hoofdpagina, "C2");
     
     var statUpdater = new StatistiekenUpdater(statistiekenSpreadSheet);
-    statUpdater.UpdateSpelersStatistieken(beurtSheetLijst, huidigeBeurt);
+    statUpdater.UpdateSpelersStatistiekenVoorIngevuldBattleReport(beurtSheetLijst, huidigeBeurt);
 
     if (_IsBattleBeurt(huidigeBeurt))
     {
@@ -57,11 +72,11 @@ function BeurtenUitvoeren()
 
         if (tegenstanderNaam == "CPU")
         {
-          statUpdater.SetScore("CPU", huidigeBeurt, battleInvuller.GetScoreSpelerB());
+          statUpdater.UpdateSpelersStatistiekenNaIngevuldBattleReport("CPU", huidigeBeurt, battleInvuller.GetStatsSpelerB());
           statUpdater.SetCPUTegenstander(spelerNaam, huidigeBeurt);
         }
 
-        statUpdater.SetScore(spelerNaam, huidigeBeurt, battleInvuller.GetScore());
+        statUpdater.UpdateSpelersStatistiekenNaIngevuldBattleReport(spelerNaam, huidigeBeurt, battleInvuller.GetStats());
       }
       statUpdater.SetWinnaars(winnaars, huidigeBeurt);
       homeUpdater.BattleInvullen(huidigeBeurt);
@@ -95,7 +110,7 @@ function _CheckSpelersInvoerInteractive(homepageUpdater, beurtSheetLijst)
     Logger.log("beurtSheetLijst: " + JSON.stringify(beurtSheetLijst))
     warning += homepageUpdater._CheckSpelersReady();
     warning += _CheckGoudHoutIJzerOver(beurtSheetLijst)
-    if (globalThis.uiActief)
+    if (uiActief)
     {
       var ui = SpreadsheetApp.getUi(); 
       var result = ui.alert(
@@ -107,7 +122,14 @@ function _CheckSpelersInvoerInteractive(homepageUpdater, beurtSheetLijst)
           warning = "";
       }
     }
-    return (warning == "");
+
+    var result = true;
+    if (warning != "")
+    {
+      result = false;
+      Logger.log(warning);
+    }
+    return result;
 }
 
 function _CheckGoudHoutIJzerOver(beurtSheetLijst)
@@ -127,7 +149,14 @@ function _CheckGoudHoutIJzerOver(beurtSheetLijst)
         warning += "Let op! " + naam + " heeft nog " + goudOver + " Goud, " + houtOver + " Hout en " + ijzerOver + " IJzer over! \n";
     }
   }
-  return warning;
+  
+  var result = true;
+  if (warning != "")
+  {
+    result = false;
+    Logger.log(warning);
+  }
+  return result;
 }
 
 function BeurtUitvoeren(beurtSheetData) 

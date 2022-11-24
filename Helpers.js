@@ -32,11 +32,44 @@ function CheckUi()
   try
   {
     var ui = SpreadsheetApp.getUi();
-    globalThis.uiActief = true;
+    uiActief = true;
   }
   catch(err)
   {
-    globalThis.uiActief = false;
+    uiActief = false;
+  }
+}
+
+function GetMode()
+{
+  var scriptProperties = PropertiesService.getScriptProperties();
+  var mode = scriptProperties.getProperty('mode');
+  //Logger.log(mode);
+  return mode;
+}
+
+function SetMode(value)
+{
+  var scriptProperties = PropertiesService.getScriptProperties();
+  scriptProperties.setProperty('mode', value);
+}
+
+function SetModeInteractive()
+{
+  CheckUi();
+  if (uiActief)
+  {
+    // Display a dialog box with a message, input field, and "Yes" and "No" buttons. The user can
+    // also close the dialog by clicking the close button in its title bar.
+    var ui = SpreadsheetApp.getUi();
+    var response = ui.prompt('Mode kan "test" of "official" zijn.\nVul hieronder de nieuwe waarde in: ', ui.ButtonSet.OK_CANCEL);
+
+    // Process the user's response.
+    if (response.getSelectedButton() == ui.Button.OK) 
+    {
+      SetMode(response.getResponseText());
+      Logger.log('Mode is nu: [', response.getResponseText() + "].");
+    }
   }
 }
 

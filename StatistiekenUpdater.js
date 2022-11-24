@@ -3,7 +3,7 @@ const STATISTIEKEN_SHEET_SPELER_DATA_RANGE = "C3:O"
 const STATS_ROW_END_BATTLE_BEURT = "32"
 const STATS_ROW_END_NONBATTLE_BEURT = "26"
 const STATISTIEKEN_SHEET_SPELER_WINNAAR_RANGE = "C29:O29"
-const STATISTIEKEN_SHEET_SPELER_SCORE_RANGE = "C27:O27"
+const STATISTIEKEN_SHEET_SPELER_STATS_NA_BATTLE_RANGES = ["C27:O27", "C22:O22", "C3:O3", "C28:O28"]
 const STATISTIEKEN_SHEET_SPELER_TEGENSTANDER_RANGE = "C28:O28"
 const STATISTIEKEN_SPELER_WINST_ROW = 26
 const STATISTIEKEN_BEURT_BEWERKEN_RANGE = "A2:B8";
@@ -16,7 +16,7 @@ class StatistiekenUpdater
         this.spelers = [];
     }
 
-    UpdateSpelersStatistieken(beurtSheetData, beurtNr)
+    UpdateSpelersStatistiekenVoorIngevuldBattleReport(beurtSheetData, beurtNr)
     {
         Logger.log("UpdateStatistieken: " + JSON.stringify(beurtSheetData));
         for (var spelerBeurtSheet of beurtSheetData)
@@ -40,11 +40,14 @@ class StatistiekenUpdater
         statistiekenSheetDataRangeBeurt.setValues(spelerBeurtStats.getValues());
     }
 
-    SetScore(speler, beurtNr, score)
+    UpdateSpelersStatistiekenNaIngevuldBattleReport(speler, beurtNr, stats)
     {
-        var statistiekenSheetSpelerScoreRange = this.statistiekenSpreadSheet.getSheetByName(speler).getRange(STATISTIEKEN_SHEET_SPELER_SCORE_RANGE);
-        var statistiekenSheetSpelerScoreBeurtCell = statistiekenSheetSpelerScoreRange.offset(0, beurtNr, 1, 1);
-        statistiekenSheetSpelerScoreBeurtCell.setValue(score);
+        for (var value of stats)
+        {
+            var statistiekenSheetSpelerScoreRange = this.statistiekenSpreadSheet.getSheetByName(speler).getRange(STATISTIEKEN_SHEET_SPELER_STATS_NA_BATTLE_RANGES[stats.indexOf(value)]);
+            var statistiekenSheetSpelerScoreBeurtCell = statistiekenSheetSpelerScoreRange.offset(0, beurtNr, 1, 1);
+            statistiekenSheetSpelerScoreBeurtCell.setValue(value);
+        }
     }
 
 
