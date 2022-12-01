@@ -7,6 +7,12 @@ const STATISTIEKEN_SHEET_SPELER_STATS_NA_BATTLE_RANGES = ["C27:O27", "C22:O22", 
 const STATISTIEKEN_SHEET_SPELER_TEGENSTANDER_RANGE = "C28:O28"
 const STATISTIEKEN_SPELER_WINST_ROW = 26
 const STATISTIEKEN_BEURT_BEWERKEN_RANGE = "A2:B8";
+const SPELER_SHEET_SPS_RANGE = "B29"
+const STATISTIEKEN_SHEET_SPS_STATS_PER_BEURT_RANGE = "F23:R25"
+const SPS_OPTIES = ["steen", "papier", "schaar"];
+const SPS_UITSLAGEN =  [[["steen", "papier"], "papier"], 
+                        [["papier", "schaar"], "schaar"], 
+                        [["schaar", "steen"], "steen"]];
 
 class StatistiekenUpdater
 {
@@ -19,13 +25,65 @@ class StatistiekenUpdater
     UpdateSpelersStatistiekenVoorIngevuldBattleReport(beurtSheetData, beurtNr)
     {
         Logger.log("UpdateStatistieken: " + JSON.stringify(beurtSheetData));
+
+        var spsKeuzes = [];
+        
         for (var spelerBeurtSheet of beurtSheetData)
         {
             this.spelers.push(spelerBeurtSheet[0]);
             var spelerSpreadsheet = SpreadsheetApp.openByUrl(spelerBeurtSheet[1]);
             var spelerStatSheet = spelerSpreadsheet.getSheets()[2];
             this._KopieerStatsVanSpelerNaarStatistiekenSheet(spelerStatSheet, spelerBeurtSheet[0], beurtNr);
+
+            var spelerBeurtSheet = spelerSpreadsheet.getSheets()[0];
+            spsKeuzes.push(spelerBeurtSheet.getRange(SPELER_SHEET_SPS_RANGE).getValue());
         }
+
+        if (_IsBattleBeurt(beurtNr))
+        {
+            var spsAantallen = this._SteenPapierSchaarTabelInvullen(spsKeuzes, beurtNr);
+            this._SteenPapierSchaarCPUKeuzeInvullen(spsAantallen, beurtNr);
+        }
+    }
+
+    _SteenPapierSchaarTabelInvullen(keuzes, beurtNr)
+    {
+        var statRange = this.statistiekenSpreadSheet.getSheetByName("Beurt Bewerken").getRange(STATISTIEKEN_SHEET_SPS_STATS_PER_BEURT_RANGE).offset(0, beurtNr, 3, 1);
+        
+        var spsAantallen = [["steen", 0], ["papier", 0], ["schaar", 0]];
+        for (var row of SPS_OPTIES)
+        {
+            spsAantallen[SPS_OPTIES.indexOf(row)][1] = keuzes.filter(x => x.toLowerCase() == row).length;
+            var cell = statRange.offset(SPS_OPTIES.indexOf(row), 0, 1, 1);
+            cell.setValue(spsAantallen[SPS_OPTIES.indexOf(row)][1]);
+        }
+        return spsAantallen;
+    }
+
+    _SteenPapierSchaarCPUKeuzeInvullen(spsAantallen, beurtNr)
+    {
+        spsAantallen.sort(function(a, b) {
+            return a[1] - b[1];
+        });
+
+        var cpuKeuze = "";
+        if (spsAantallen[0][1] != spsAantallen[1][1])
+        {
+            cpuKeuze = spsAantallen[0][1];
+        }
+        else
+        {
+            var spsKeuze1 = spsAantallen[0][0];
+            var spsKeuze2 = spsAantallen[1][0];
+            var uitslagenMetKeuze1 = SPS_UITSLAGEN.filter(x => x[0].find(y => y == spsKeuze1));
+            cpuKeuze = uitslagenMetKeuze1.find(x => x[0].find(y => y == spsKeuze2))[1];
+        }
+        Logger.log("SteenPapierSchaar CPU keuze: [" + cpuKeuze + "]");
+
+        var cpuSheet = this.statistiekenSpreadSheet.getSheetByName("CPU");
+        var statistiekenStatsRangeA1 = (STATISTIEKEN_SHEET_SPELER_DATA_RANGE + STATS_ROW_END_BATTLE_BEURT);
+        var cpuSpsKeuzeCell = cpuSheet.getRange(statistiekenStatsRangeA1).offset(27, beurtNr, 1, 1);
+        cpuSpsKeuzeCell.setValue(cpuKeuze);
     }
 
     _KopieerStatsVanSpelerNaarStatistiekenSheet(spelerStatSheet, spelerName, beurtNr)

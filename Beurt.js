@@ -54,7 +54,7 @@ function BeurtenUitvoeren()
     statUpdater.UpdateSpelersStatistiekenVoorIngevuldBattleReport(beurtSheetLijst, huidigeBeurt);
 
     if (_IsBattleBeurt(huidigeBeurt))
-    {
+    {      
       // Alle battle reports invullen op speler sheet
       var winnaars = [];
       for (var beurtSheetData of beurtSheetLijst)
@@ -150,13 +150,11 @@ function _CheckGoudHoutIJzerOver(beurtSheetLijst)
     }
   }
   
-  var result = true;
   if (warning != "")
   {
-    result = false;
     Logger.log(warning);
   }
-  return result;
+  return warning;
 }
 
 function BeurtUitvoeren(beurtSheetData) 
@@ -166,6 +164,8 @@ function BeurtUitvoeren(beurtSheetData)
   var spelerSheet = spelerSpreadsheet.getSheets()[0];
   
   _VooruitzichtNaarHuidigeBeurt(spelerSheet);
+  var sps = new SteenPapierSchaar(spelerSheet);
+  sps.SPSNaarHuidigeBeurt(spelerSheet);
   var beurtUitgevoerd = _BeurtOptellen(spelerSheet, "M1");
 
   return beurtUitgevoerd;
