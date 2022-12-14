@@ -73,6 +73,10 @@ function SetModeInteractive()
   }
 }
 
+function CapitalizeFirstLetter(string) {
+  return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
 function _IsCellInRange(cell, range)
 {
   var startRow = range.getRow();

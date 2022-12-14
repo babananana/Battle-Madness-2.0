@@ -1,7 +1,9 @@
 const BATTLE_REPORT_SPELER_B_RANGE = "F3:F22"
 const BATTLE_REPORT_SPELER_B_WINNAAR_CELL = "F15"
-const BATTLE_REPORT_SCORE_A1s = ["D14", "L27", "L4", "F3"]
+
+const BATTLE_REPORT_SCORE_A1s = ["D14", "L27", "L4", "F3", "D31"]
 const BATTLE_REPORT_SCORE_SPELER_B_A1s = ["F14", "F24"]
+const STATISTIEKEN_SPELER_B_SPSKEUZE_STAT_INDEX = 27
 const STATISTIEKEN_SHEET_SPELER_DATA_TO_BATTLE_LAYOUT = {
     "Soldaten" : {statIndex: 3, BattleIndex: 1}, 
     "Schade" : {statIndex: 4, BattleIndex: 2}, 
@@ -24,7 +26,7 @@ class BattleInvuller
         this.spelerSheet = spelerSheet;
     }
 
-    UpdateBattleSpelerB(statistiekenSheetData, spelerBName)
+    UpdateBattleSpelerB(statistiekenSheetData, spelerBName, sps)
     {
         var battleSpelerBRange = this.spelerSheet.getRange(BATTLE_REPORT_SPELER_B_RANGE);
         var spelerBNameRange = battleSpelerBRange.offset(0, 0, 1, 1);
@@ -39,6 +41,8 @@ class BattleInvuller
 
             spelerRange.setValues([[sourceData]]);
         }
+
+        sps.UpdateSpelerBattle(statistiekenSheetData[STATISTIEKEN_SPELER_B_SPSKEUZE_STAT_INDEX][0]);
 
         var spelerBWinnaar = this.spelerSheet.getRange(BATTLE_REPORT_SPELER_B_WINNAAR_CELL).getValue();
         return (spelerBWinnaar == "Winnaar");

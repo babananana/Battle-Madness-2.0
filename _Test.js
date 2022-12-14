@@ -11,7 +11,7 @@ function TestBeurtenUitvoeren()
   //if (_CheckSpelersInvoerInteractive(homepageReadyRange, [beurtSheetData]))
   {
     //_ResetSpelersReady(homepageReadyRange);
-    var beurtNrUitgevoerd = BeurtUitvoeren(beurtSheetData[0]);
+    BeurtUitvoeren(beurtSheetData[0]);
     //_BeurtOptellen(homepageSheet, "C2")
   }
 }
@@ -24,7 +24,6 @@ function TestStatistiekenUpdaten()
   
   var statUpdater = new StatistiekenUpdater(statistiekenSpreadSheet);
   statUpdater.UpdateSpelersStatistiekenVoorIngevuldBattleReport(beurtSheetData, 4);
-
 }
 
 

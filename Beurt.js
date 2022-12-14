@@ -7,7 +7,14 @@ var statistiekenSpreadSheetUrlOfficial = 'https://docs.google.com/spreadsheets/d
 var homepageUrlOfficial = 'https://docs.google.com/spreadsheets/d/12Ri71NxzYuK5PVu_l743wovqDnLoGX7YULuJuyYhLes/edit'; 
 var homepageUrlTest = 'https://docs.google.com/spreadsheets/d/1MAla-4TrH3ZyJVC9HpPGveMQcjQDwBf-_WiiVHN-n0k/edit';
 
-function BeurtenUitvoeren()
+function Reshuffle()
+{
+  var globalSpreadSheets = _GetGlobalSpreadsheets();
+  var homeUpdater = new HomepageUpdater(globalSpreadSheets.homepageSpreadSheet, globalSpreadSheets.statistiekenSpreadSheet);
+  homeUpdater.VolgendeBeurtKlaarzetten();
+}
+
+function _GetGlobalSpreadsheets()
 {
   CheckUi();
   var homepageUrl = homepageUrlTest;
@@ -23,9 +30,17 @@ function BeurtenUitvoeren()
   
   var statistiekenSpreadSheet = SpreadsheetApp.openByUrl(statistiekenSpreadSheetUrl);
   var homepageSpreadSheet = SpreadsheetApp.openByUrl(homepageUrl);
+
+  return {  statistiekenSpreadSheet: statistiekenSpreadSheet, 
+            homepageSpreadSheet: homepageSpreadSheet};
+}
+
+function BeurtenUitvoeren()
+{
+  var globalSpreadSheets = _GetGlobalSpreadsheets();
   
   var allOK = false;
-  var statistiekenBeurtBewerkenSheet = statistiekenSpreadSheet.getSheetByName("Beurt Bewerken");
+  var statistiekenBeurtBewerkenSheet = globalSpreadSheets.statistiekenSpreadSheet.getSheetByName("Beurt Bewerken");
   var beurtSheetLijst = statistiekenBeurtBewerkenSheet.getRange(STATISTIEKEN_BEURT_BEWERKEN_RANGE).getValues();
   if (GetMode() != "official")
   {
@@ -36,22 +51,23 @@ function BeurtenUitvoeren()
   }
   Logger.log("beurtSheetLijst: " + JSON.stringify(beurtSheetLijst));
   
-  var homeUpdater = new HomepageUpdater(homepageSpreadSheet, statistiekenSpreadSheet);
+  var homeUpdater = new HomepageUpdater(globalSpreadSheets.homepageSpreadSheet, globalSpreadSheets.statistiekenSpreadSheet);
   allOK = _CheckSpelersInvoerInteractive(homeUpdater, beurtSheetLijst);
   if (allOK) 
   {
     homeUpdater.ResetSpelersReady();
     //homeUpdater.UpdateHomepage();
     //beurtSheetLijst = [beurtSheetLijst[0]];
+    var spsDict = {};
     for (var beurtSheetData of beurtSheetLijst)
     {
-      BeurtUitvoeren(beurtSheetData);
+      spsDict[beurtSheetData[0]] = BeurtUitvoeren(beurtSheetData);
     }
-    var hoofdpagina = homepageSpreadSheet.getSheetByName("Hoofdpagina");
+    var hoofdpagina = globalSpreadSheets.homepageSpreadSheet.getSheetByName("Hoofdpagina");
     var huidigeBeurt = _BeurtOptellen(hoofdpagina, "C2");
     
-    var statUpdater = new StatistiekenUpdater(statistiekenSpreadSheet);
-    statUpdater.UpdateSpelersStatistiekenVoorIngevuldBattleReport(beurtSheetLijst, huidigeBeurt);
+    var statUpdater = new StatistiekenUpdater(globalSpreadSheets.statistiekenSpreadSheet);
+    statUpdater.UpdateSpelersStatistiekenVoorIngevuldBattleReport(beurtSheetLijst, huidigeBeurt, spsDict);
 
     if (_IsBattleBeurt(huidigeBeurt))
     {      
@@ -63,7 +79,7 @@ function BeurtenUitvoeren()
         var tegenstanderNaam = homeUpdater.GetTegenstander(spelerNaam);
         var statsTegenstander = statUpdater.GetStatistieken(tegenstanderNaam, huidigeBeurt);
         var battleInvuller = new BattleInvuller(SpreadsheetApp.openByUrl(beurtSheetData[1]));
-        var tegenstanderGewonnen = battleInvuller.UpdateBattleSpelerB(statsTegenstander, tegenstanderNaam);
+        var tegenstanderGewonnen = battleInvuller.UpdateBattleSpelerB(statsTegenstander, tegenstanderNaam, spsDict[spelerNaam]);
         
         if (tegenstanderGewonnen)
         {
@@ -168,7 +184,7 @@ function BeurtUitvoeren(beurtSheetData)
   sps.SPSNaarHuidigeBeurt(spelerSheet);
   var beurtUitgevoerd = _BeurtOptellen(spelerSheet, "M1");
 
-  return beurtUitgevoerd;
+  return sps;
 }
 
 function SpelerSheetKlaarmakenVoorVolgendeBeurt(beurtSheetData, actiesRandomizer)

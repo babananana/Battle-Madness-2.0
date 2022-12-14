@@ -3,16 +3,14 @@ const STATISTIEKEN_SHEET_SPELER_DATA_RANGE = "C3:O"
 const STATS_ROW_END_BATTLE_BEURT = "32"
 const STATS_ROW_END_NONBATTLE_BEURT = "26"
 const STATISTIEKEN_SHEET_SPELER_WINNAAR_RANGE = "C29:O29"
-const STATISTIEKEN_SHEET_SPELER_STATS_NA_BATTLE_RANGES = ["C27:O27", "C22:O22", "C3:O3", "C28:O28"]
+const STATISTIEKEN_SHEET_SPELER_STATS_NA_BATTLE_RANGES = ["C27:O27", "C22:O22", "C3:O3", "C28:O28", "C32:O32"]
 const STATISTIEKEN_SHEET_SPELER_TEGENSTANDER_RANGE = "C28:O28"
 const STATISTIEKEN_SPELER_WINST_ROW = 26
 const STATISTIEKEN_BEURT_BEWERKEN_RANGE = "A2:B8";
 const SPELER_SHEET_SPS_RANGE = "B29"
 const STATISTIEKEN_SHEET_SPS_STATS_PER_BEURT_RANGE = "F23:R25"
 const SPS_OPTIES = ["steen", "papier", "schaar"];
-const SPS_UITSLAGEN =  [[["steen", "papier"], "papier"], 
-                        [["papier", "schaar"], "schaar"], 
-                        [["schaar", "steen"], "steen"]];
+
 
 class StatistiekenUpdater
 {
@@ -69,7 +67,7 @@ class StatistiekenUpdater
         var cpuKeuze = "";
         if (spsAantallen[0][1] != spsAantallen[1][1])
         {
-            cpuKeuze = spsAantallen[0][1];
+            cpuKeuze = spsAantallen[0][0];
         }
         else
         {
@@ -83,7 +81,7 @@ class StatistiekenUpdater
         var cpuSheet = this.statistiekenSpreadSheet.getSheetByName("CPU");
         var statistiekenStatsRangeA1 = (STATISTIEKEN_SHEET_SPELER_DATA_RANGE + STATS_ROW_END_BATTLE_BEURT);
         var cpuSpsKeuzeCell = cpuSheet.getRange(statistiekenStatsRangeA1).offset(27, beurtNr, 1, 1);
-        cpuSpsKeuzeCell.setValue(cpuKeuze);
+        cpuSpsKeuzeCell.setValue(CapitalizeFirstLetter(cpuKeuze));
     }
 
     _KopieerStatsVanSpelerNaarStatistiekenSheet(spelerStatSheet, spelerName, beurtNr)
